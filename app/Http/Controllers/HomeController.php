@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
-use App\Models\Task;
-use App\Models\Template;
+use App\Models\Task;      // IMPORTANTE: Agregado
+use App\Models\Template;  // IMPORTANTE: Agregado
 
 class HomeController extends Controller
 {
