@@ -28,7 +28,7 @@
                                 <div class="card border-0 shadow-sm text-center p-3 h-100">
                                     <h5 class="text-muted">Personal a cargo</h5>
                                     <h2 class="display-5 text-primary">{{ $personalCount }}</h2>
-                                    <button class="btn btn-outline-primary btn-sm mt-2">Gestionar Enfermeras/os</button>
+                                    <a href="{{ route('personnel.index') }}" class="btn btn-outline-primary btn-sm mt-2">Gestionar Enfermeras/os</a>
                                 </div>
                             </div>
                             <div class="col-md-4 mb-3">
