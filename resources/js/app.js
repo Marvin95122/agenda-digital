@@ -5,6 +5,7 @@
  */
 
 import './bootstrap';
+import 'bootstrap'; // Agrega esta línea si no está
 import { createApp } from 'vue';
 
 /**
