@@ -3,17 +3,20 @@
 @section('content')
 <div class="container">
     <div class="row mb-4 align-items-center">
-        <div class="col-md-8">
+        <div class="col-md-7">
             <h3 class="fw-bold text-primary">Agenda de Actividades</h3>
             <p class="text-muted">Gestión de flujo de trabajo hospitalario.</p>
         </div>
-        @if(Auth::user()->role === 'supervisor')
-        <div class="col-md-4 text-end">
-            <button type="button" class="btn btn-warning shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#newTaskModal">
-                <i class="bi bi-plus-circle-fill me-1"></i> Asignar Nueva Tarea
-            </button>
+        <div class="col-md-5 text-end">
+            <a href="{{ route('tasks.pdf') }}" class="btn btn-secondary shadow-sm fw-bold me-2">
+                <i class="bi bi-file-earmark-pdf-fill me-1"></i> Imprimir PDF
+            </a>
+            @if(Auth::user()->role === 'supervisor')
+                <button type="button" class="btn btn-warning shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#newTaskModal">
+                    <i class="bi bi-plus-circle-fill me-1"></i> Asignar Tarea
+                </button>
+            @endif
         </div>
-        @endif
     </div>
 
     @if(Auth::user()->role === 'supervisor')
@@ -85,11 +88,9 @@
                                         <span class="badge" style="background-color: {{ $task->category->color ?? '#eee' }}; color: #333;">{{ $task->category->name ?? 'General' }}</span>
                                         <span class="badge bg-{{ $task->priority == 'alta' ? 'danger' : ($task->priority == 'media' ? 'warning text-dark' : 'info') }}">{{ ucfirst($task->priority) }}</span>
                                     </div>
-                                    <h5 class="card-title fw-bold">{{ $task->title }}
-                                        @if($task->assigned_by == Auth::id()) <span class="badge bg-light text-secondary ms-2 border"><i class="bi bi-person"></i> Personal</span> @endif
-                                    </h5>
+                                    <h5 class="card-title fw-bold">{{ $task->title }}</h5>
                                     <p class="card-text text-muted small mb-2"><i class="bi bi-geo-alt-fill me-1 text-primary"></i> Ubicación: <strong>{{ $task->location ?? 'N/A' }}</strong></p>
-                                    <div class="alert alert-warning p-2 mb-3 border-0 small"><i class="bi bi-clock me-1"></i> Hora programada: <strong>{{ $task->due_time ?? 'Sin hora' }}</strong></div>
+                                    <div class="alert alert-warning p-2 mb-3 border-0 small"><i class="bi bi-clock me-1"></i> Hora: <strong>{{ $task->due_time ?? 'Sin hora' }}</strong></div>
                                     <form action="{{ route('tasks.updateStatus', $task->id) }}" method="POST">
                                         @csrf @method('PATCH')
                                         <div class="input-group input-group-sm">
@@ -97,7 +98,7 @@
                                             <select name="status" class="form-select font-weight-bold" onchange="this.form.submit()">
                                                 <option value="pendiente" {{ $task->status == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
                                                 <option value="en_proceso" {{ $task->status == 'en_proceso' ? 'selected' : '' }}>En Proceso</option>
-                                                <option value="completada">✔ Marcar como Completada</option>
+                                                <option value="completada">✔ Completada</option>
                                             </select>
                                         </div>
                                     </form>
@@ -144,7 +145,8 @@
                     </div>
                     <form action="{{ route('tasks.store') }}" method="POST">
                         @csrf
-                        <input type="hidden" name="user_id" value="{{ Auth::id() }}"> <div class="modal-body">
+                        <input type="hidden" name="user_id" value="{{ Auth::id() }}">
+                        <div class="modal-body">
                             <div class="mb-3"><label class="form-label fw-bold small">Título</label><input type="text" name="title" class="form-control" required></div>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
@@ -175,7 +177,69 @@
     @endif
 </div>
 
+@if(Auth::user()->role === 'supervisor')
+<div class="modal fade" id="newTaskModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title fw-bold">Asignar Tarea Médica</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ route('tasks.store') }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">¿A quién se asigna?</label>
+                        <select name="user_id" class="form-select select2-nurse" style="width: 100%;" required>
+                            <option value=""></option>
+                            @foreach($nurses as $nurse)
+                                <option value="{{ $nurse->id }}">{{ $nurse->name }} ({{ $nurse->shift }})</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-3"><label class="form-label fw-bold small">Título de la Tarea</label><input type="text" name="title" class="form-control" required></div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small">Categoría</label>
+                            <select name="category_id" class="form-select">
+                                <option value="">Sin categoría</option>
+                                @foreach($categories as $cat) <option value="{{ $cat->id }}">{{ $cat->name }}</option> @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small">Prioridad</label>
+                            <select name="priority" class="form-select">
+                                <option value="baja">Baja</option><option value="media" selected>Media</option><option value="alta">Alta</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3"><label class="form-label fw-bold small">Ubicación (Cama / Área)</label><input type="text" name="location" class="form-control"></div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3"><label class="form-label fw-bold small">Fecha</label><input type="date" name="due_date" class="form-control" value="{{ date('Y-m-d') }}" required></div>
+                        <div class="col-md-6 mb-3"><label class="form-label fw-bold small">Hora</label><input type="time" name="due_time" class="form-control"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning fw-bold">Asignar Tarea</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endif
+
 <script>
+    $(document).ready(function() {
+        if ($('.select2-nurse').length) {
+            $('.select2-nurse').select2({
+                dropdownParent: $('#newTaskModal'), // ¡Esto asegura que el buscador funcione dentro de la ventanita!
+                placeholder: "🔍 Busca por nombre...",
+                allowClear: true
+            });
+        }
+    });
+
     function confirmTaskDelete(id) {
         Swal.fire({ title: '¿Eliminar tarea?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc3545', confirmButtonText: 'Sí' }).then((r) => {
             if (r.isConfirmed) document.getElementById('delete-task-' + id).submit();

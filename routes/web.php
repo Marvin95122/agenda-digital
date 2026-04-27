@@ -44,3 +44,5 @@ Route::get('/protocolos', [TemplateController::class, 'index'])->name('templates
 Route::post('/protocolos', [TemplateController::class, 'store'])->name('templates.store');
 Route::post('/protocolos/{template}/aplicar', [TemplateController::class, 'apply'])->name('templates.apply');
 Route::delete('/protocolos/{template}', [TemplateController::class, 'destroy'])->name('templates.destroy');
+
+Route::get('/agenda/pdf/descargar', [App\Http\Controllers\TaskController::class, 'downloadPdf'])->name('tasks.pdf');
