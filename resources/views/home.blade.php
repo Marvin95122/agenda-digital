@@ -35,7 +35,7 @@
                                 <div class="card border-0 shadow-sm text-center p-3 h-100">
                                     <h5 class="text-muted">Tareas Pendientes</h5>
                                     <h2 class="display-5 text-warning">{{ $tareasPendientesCount }}</h2>
-                                    <button class="btn btn-outline-warning btn-sm mt-2">Asignar Tareas (Rejilla)</button>
+                                    <a href="{{ route('tasks.index') }}" class="btn btn-outline-warning btn-sm mt-2">Asignar Tareas (Rejilla)</a>
                                 </div>
                             </div>
                             <div class="col-md-4 mb-3">
@@ -57,7 +57,7 @@
                                 <div class="card border-0 shadow-sm text-center p-3 h-100">
                                     <h5 class="text-muted">Mis Tareas de Hoy</h5>
                                     <h2 class="display-5 text-primary">{{ $misTareasHoyCount }}</h2>
-                                    <button class="btn btn-primary btn-sm mt-2">Ver mi Agenda</button>
+                                    <a href="{{ route('tasks.index') }}" class="btn btn-primary btn-sm mt-2">Ver mi Agenda</a>
                                 </div>
                             </div>
                             <div class="col-md-6 mb-3">
