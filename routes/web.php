@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PersonnelController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TemplateController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -36,3 +37,10 @@ Route::get('/agenda', [TaskController::class, 'index'])->name('tasks.index');
 Route::post('/agenda', [TaskController::class, 'store'])->name('tasks.store');
 Route::patch('/agenda/{task}/status', [TaskController::class, 'updateStatus'])->name('tasks.updateStatus');
 Route::delete('/agenda/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
+
+
+// Rutas para Protocolos (Plantillas)
+Route::get('/protocolos', [TemplateController::class, 'index'])->name('templates.index');
+Route::post('/protocolos', [TemplateController::class, 'store'])->name('templates.store');
+Route::post('/protocolos/{template}/aplicar', [TemplateController::class, 'apply'])->name('templates.apply');
+Route::delete('/protocolos/{template}', [TemplateController::class, 'destroy'])->name('templates.destroy');

@@ -18,18 +18,28 @@ class TaskController extends Controller
         $user = Auth::user();
         
         if ($user->role === 'supervisor') {
-            // El supervisor ve todas las tareas y necesita listas para el formulario
             $tasks = Task::with(['user', 'category'])->orderBy('due_date')->orderBy('due_time')->get();
             $nurses = User::where('role', 'enfermeria')->get();
             $categories = Category::all();
             return view('tasks.index', compact('tasks', 'nurses', 'categories'));
         } else {
-            // La enfermera solo ve sus tareas pendientes de hoy
-            $tasks = Task::with('category')
+            $pendingTasks = Task::with('category')
                 ->where('user_id', $user->id)
+                ->whereIn('status', ['pendiente', 'en_proceso'])
                 ->orderBy('priority', 'desc')
+                ->orderBy('due_time')
                 ->get();
-            return view('tasks.index', compact('tasks'));
+
+            $completedTasks = Task::with('category')
+                ->where('user_id', $user->id)
+                ->where('status', 'completada')
+                ->orderBy('updated_at', 'desc')
+                ->get();
+
+            // Pasamos las categorías para que la enfermera coloree sus tareas
+            $categories = Category::all(); 
+
+            return view('tasks.index', compact('pendingTasks', 'completedTasks', 'categories'));
         }
     }
 
@@ -46,23 +56,23 @@ class TaskController extends Controller
 
         Task::create([
             'user_id' => $request->user_id,
-            'assigned_by' => Auth::id(),
+            'assigned_by' => Auth::id(), // Si es enfermera, se asigna a sí misma
             'category_id' => $request->category_id,
             'title' => $request->title,
             'location' => $request->location,
-            'description' => $request->description,
             'due_date' => $request->due_date,
             'due_time' => $request->due_time,
             'priority' => $request->priority,
             'status' => 'pendiente',
         ]);
 
-        return back()->with('success', 'Tarea asignada correctamente.');
+        return back()->with('success', 'Tarea guardada correctamente en la agenda.');
     }
 
     public function updateStatus(Request $request, Task $task) {
         $task->update(['status' => $request->status]);
-        return back()->with('success', 'Estado de la tarea actualizado.');
+        $mensaje = $request->status == 'completada' ? '¡Excelente! Tarea movida al historial.' : 'Estado actualizado.';
+        return back()->with('success', $mensaje);
     }
 
     public function destroy(Task $task) {

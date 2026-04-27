@@ -22,8 +22,15 @@ class Task extends Model
         'completed_at'
     ];
 
+    // Conexión con la enfermera
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    // ¡ESTA ES LA CONEXIÓN QUE FALTABA!
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
     }
 }

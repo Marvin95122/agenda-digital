@@ -13,6 +13,10 @@
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 </head>
 <body class="bg-light">
     <div id="app">
@@ -24,11 +28,12 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto">
                         @auth
-                            <li class="nav-item"><a class="nav-link" href="{{ route('home') }}">Panel</a></li>
+                            <li class="nav-item"><a class="nav-link fw-bold" href="{{ route('home') }}">Panel</a></li>
                             @if(Auth::user()->role === 'supervisor')
                                 <li class="nav-item"><a class="nav-link" href="{{ route('personnel.index') }}">Personal</a></li>
                                 <li class="nav-item"><a class="nav-link" href="{{ route('categories.index') }}">Categorías</a></li>
                                 <li class="nav-item"><a class="nav-link" href="{{ route('tasks.index') }}">Agenda</a></li>
+                                <li class="nav-item"><a class="nav-link text-success fw-bold" href="{{ route('templates.index') }}">Protocolos</a></li>
                             @endif
                         @endauth
                     </ul>
@@ -54,26 +59,14 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // 1. Alerta de Éxito
             @if(session('success'))
-                Swal.fire({ 
-                    icon: 'success', 
-                    title: '¡Operación exitosa!', 
-                    text: "{{ session('success') }}", 
-                    confirmButtonColor: '#0d6efd' 
-                });
+                Swal.fire({ icon: 'success', title: '¡Operación exitosa!', text: "{{ session('success') }}", confirmButtonColor: '#0d6efd' });
             @endif
 
-            // 2. Alerta de Errores de Validación (Ej. Correo ya en uso)
             @if($errors->any())
                 Swal.fire({
-                    icon: 'error',
-                    title: 'Hubo un problema',
-                    html: `<ul class="text-start" style="list-style:none; padding:0;">
-                                @foreach($errors->all() as $error) 
-                                    <li class="text-danger mb-1"><i class="bi bi-exclamation-circle me-1"></i> {{ $error }}</li> 
-                                @endforeach
-                           </ul>`,
+                    icon: 'error', title: 'Hubo un problema',
+                    html: `<ul class="text-start" style="list-style:none; padding:0;">@foreach($errors->all() as $error) <li class="text-danger mb-1"><i class="bi bi-exclamation-circle me-1"></i> {{ $error }}</li> @endforeach</ul>`,
                     confirmButtonColor: '#dc3545'
                 });
             @endif
